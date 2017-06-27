@@ -19,7 +19,7 @@ client=MongoClient("mongodb://jun_ishikawa:EUgx3hId7TuJnZeZ@car-e-mainframe-shar
 db=client.database
 #Modules
 def clear_server():
-	comm=input('Warning!All data will be wiped![y/n]:')
+	comm=raw_input('Warning!All data will be wiped![y/n]:')
 	if(comm=='y'):
 		try:
 			action=db.database.delete_many({})
