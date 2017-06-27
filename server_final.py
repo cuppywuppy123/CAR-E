@@ -32,20 +32,20 @@ def clear_server():
 def verify_mobile_no(phone_number):
 	random_number=random.choice(numbers)
 	message=twilio_client.api.account.messages.create(to=phone_number,from_="+13476958859",body=str(random_number))
-	code=input('Enter OTP:')
+	code=raw_input('Enter OTP:')
 	if(code==random_number):
 		print('Phone number verified!')
 def create_entry():
-	name=input('Input Name:')
-	phone_number=input('Input phone number:')
+	name=raw_input('Input Name:')
+	phone_number=raw_input('Input phone number:')
 	verify_mobile_no(phone_number)
-	car_no=input('Input car number:')
+	car_no=raw_input('Input car number:')
 	database={'name':name,'phone number':phone_number,'car number':car_no}
 	result=db.database.insert_one(database)
 	print('Done!')
 
 while(True):
-	command=input('root@nyx>>')
+	command=raw_input('root@nyx>>')
 	if(command=='server.clear'):
 		clear_server()
 	elif(command=='server.input'):
