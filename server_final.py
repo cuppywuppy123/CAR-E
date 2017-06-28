@@ -8,6 +8,7 @@ import httplib,urllib
 import subprocess as sp
 import random
 numbers=range(1000,9999)
+account_numbers=range(100,999)
 #Twilio Credentials
 account_sid="ACd90a366ff5022fd855947f76ad092111"
 auth_token="d2be14f5dad17085f42b34c4722ab515"
@@ -36,11 +37,12 @@ def verify_mobile_no(phone_number):
 	if(code==random_number):
 		print('Phone number verified!')
 def create_entry():
+	account_number=random.choice(account_numbers)
 	name=raw_input('Input Name:')
 	phone_number=raw_input('Input phone number:')
 	verify_mobile_no(phone_number)
 	car_no=raw_input('Input car number:')
-	database={'name':name,'phone number':phone_number,'car number':car_no}
+	database={'name':name,'phone number':phone_number,'car number':car_no,'account number':str(account_number)}
 	result=db.database.insert_one(database)
 	print('Done!')
 
