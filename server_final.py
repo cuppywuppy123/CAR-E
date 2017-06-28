@@ -7,6 +7,8 @@ import urllib2,json
 import httplib,urllib
 import subprocess as sp
 import random
+channel_id='291591'
+read_api_key='X17XUVVG5C4GM7K8'
 html_code="""
 <html>
 	<style>
@@ -42,14 +44,11 @@ html_code="""
     <div id="map-canvas"></div>
 <div id="phone-number"></div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key= AIzaSyCLPwrcJzZ3VaW5-igL6mCrAAe4bVlpE8k &libraries=places&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key= AIzaSyATbeQAjgvzLXAZ3JTU50oQmX7QUmUVTG0 &libraries=places&callback=initMap" async defer></script>
 		<script lang="Javascript">
                         var map;
             function initMap() {
-            $.getJSON('https://api.thingspeak.com/channels/' + 
-            """
-channel=
-            '260219' + '/feed/last.json?api_key=' + 'T9JT3E0W39FQMNPI', function(data) {
+            $.getJSON('https://api.thingspeak.com/channels/' + '291591' + '/feed/last.json?api_key=' + 'X17XUVVG5C4GM7K8', function(data) {
               if (navigator.geolocation) {
                 try {
                   navigator.geolocation.getCurrentPosition(function(position) {
@@ -173,6 +172,7 @@ var service = new google.maps.places.PlacesService(map);
 	</body>
   </html>
   """
+filename=""
 numbers=range(1000,9999)
 account_numbers=range(100,999)
 #Twilio Credentials
@@ -199,9 +199,16 @@ def clear_server():
 def verify_mobile_no(phone_number):
 	random_number=random.choice(numbers)
 	message=twilio_client.api.account.messages.create(to=phone_number,from_="+13476958859",body=str(random_number))
-	code=raw_input('Enter OTP:')
-	if(code==random_number):
-		print('Phone number verified!')
+	while(True):
+		code=raw_input('Enter OTP:')
+		if(int(code)==random_number):
+			print('Phone number verified!')
+			break
+		else:
+			print('Wrong input! Enter again...')
+			continue
+def send_signal(phone_number,w,x,car):
+	message=twilio_client.api.account.messages.create(to=phone_number,from_="+13476958859",body=car+" is located at "+str(w)+","+str(x))
 def create_entry():
 	account_number=random.choice(account_numbers)
 	name=raw_input('Input Name:')
@@ -209,14 +216,48 @@ def create_entry():
 	verify_mobile_no(phone_number)
 	car_no=raw_input('Input car number:')
 	database={'name':name,'phone number':phone_number,'car number':car_no,'account number':str(account_number)}
+	filename=str(account_number)+'.html'
+	print('Account number:')
+	print(account_number)
+	f=open(filename,'w')
+	f.write(html_code)
+	f.close()
 	result=db.database.insert_one(database)
 	print('Done!')
-def 
-
+def trigger_event_action_listener():
+	while(True):
+		val=0
+		conn=urllib2.urlopen("https://api.thingspeak.com/channels/%s/feeds/last.json?api_key=%s" \
+					%(channel_id,read_api_key))
+		response=conn.read()
+		print "http status code=%s" % (conn.getcode())
+		data=json.loads(response)
+		w=data['field1']
+		x=data['field2']
+		y=data['field3']
+		z=data['field4']
+		if(x!=0 and y!=0):
+			print('Initiating GPS Tracker Systems...')
+			if(y!=-999):
+				url = 'file:///home/jun/Desktop/CAR-E/'+z+'.html'
+				r=db.database.find_one({'account number':z})
+				phone_no=r.get('phone number')
+				car_no=r.get('car number')
+				#print(phone_no)
+				#print(car_no)
+				send_signal(phone_no,w,x,car_no)
+				webbrowser.open_new(url)
+			conn.close()
+			break
+		else:
+			conn.close()
+			print('Failed to contact GPS! Retrying...')
+			continue
 while(True):
 	command=raw_input('root@nyx>>')
 	if(command=='server.clear'):
 		clear_server()
 	elif(command=='server.input'):
 		create_entry()
-
+	elif(command=='server.listen'):
+		trigger_event_action_listener()
