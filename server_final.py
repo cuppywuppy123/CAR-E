@@ -214,8 +214,12 @@ def create_entry():
 	name=raw_input('Input Name:')
 	phone_number=raw_input('Input phone number:')
 	verify_mobile_no(phone_number)
+	support_phone_number_1=raw_input('Input 1st emergency phone number:')
+	verify_mobile_no(support_phone_number_1)
+	support_phone_number_2=raw_input('Input 2nd emergency phone number:')
+	verify_mobile_no(support_phone_number_2)
 	car_no=raw_input('Input car number:')
-	database={'name':name,'phone number':phone_number,'car number':car_no,'account number':str(account_number)}
+	database={'name':name,'phone number':phone_number,'car number':car_no,'account number':str(account_number),'support phone number 1':support_phone_number_1,'support phone number 2':support_phone_number_2}
 	filename=str(account_number)+'.html'
 	print('Account number:')
 	print(account_number)
@@ -243,9 +247,13 @@ def trigger_event_action_listener():
 				r=db.database.find_one({'account number':z})
 				phone_no=r.get('phone number')
 				car_no=r.get('car number')
+				phone_no_1=r.get('support phone number 1')
+				phone_no_2=r.get('support phone number 2')
 				#print(phone_no)
 				#print(car_no)
 				send_signal(phone_no,w,x,car_no)
+				send_signal(phone_no_1,w,x,car_no)
+				send_signal(phone_no_2,w,x,car_no)
 				webbrowser.open_new(url)
 			conn.close()
 			break
